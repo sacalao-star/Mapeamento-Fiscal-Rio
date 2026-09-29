@@ -38,10 +38,13 @@ def fmt_num(val):
     if val is None: return "0"
     return f"{round(val):,.0f}".replace(",", ".")
 
+def render_card(valor, legenda, cor="#1B3A5C"):
+    html = f'<div class="metric-card"><div class="metric-val" style="color:{cor};">{valor}</div><div class="metric-lbl">{legenda}</div></div>'
+    st.markdown(html, unsafe_allow_html=True)
+
 # ============================================================
 # 2. BASE DE DADOS DOS IMÓVEIS (MAPEAMENTO GEOGRÁFICO)
 # ============================================================
-# Imóveis estratégicos ociosos ou em Dívida Ativa no Centro e Zona Portuária do Rio
 df_imoveis = pd.DataFrame([
     {
         "id": "SQL-101.002-9", 
@@ -117,15 +120,12 @@ def calcular_simulacao(area, valor_venal, trilha):
         faturamento_m2 = 6000
         emprego_m2 = 25
         escada = [(6, 0), (8, 25), (10, 50), (999, 100)]
-iss_pct, icms_pct, itbi_pct = 
-0.02, 0.03, 0.0
- 0.02, 0.03, 0.0
+        iss_pct, icms_pct, itbi_pct = 0.02, 0.03, 0.0
     elif trilha == "Saúde":
         faturamento_m2 = 8000
         emprego_m2 = 20
         escada = [(8, 0), (9, 25), (10, 50), (999, 100)]
-        iss_pct, icms_pct, itbi_pct = 0.02, 0.03, 0.0
- 0.04, 0.01, 0.0
+        iss_pct, icms_pct, itbi_pct = 0.04, 0.01, 0.0
     elif trilha == "Educação":
         faturamento_m2 = 3500
         emprego_m2 = 45
@@ -166,9 +166,8 @@ iss_pct, icms_pct, itbi_pct =
 # 4. INTERFACE DO APLICATIVO
 # ============================================================
 st.title("🗺️ GIS-Gov Rio | Mapeamento de Ativos e Projeção Fiscal")
-st.markdown("Navegue pelo mapa interativo do município, explore os imóveis mapeados em **dívida ativa / ociosos** (pontos vermelhos) e clique para simular o potencial de arrecadação e empregos.")
+st.markdown("Navegue pelo mapa interativo do município, explore os imóveis mapeados em **dívida ativa / ociosos** (pontos vermelhos) e selecione para simular o potencial de arrecadação e empregos.")
 
-# Sidebar de Seleção Rápida ou Filtro por Bairro
 with st.sidebar:
     st.header("🎯 Seleção de Imóveis")
     bairro_filtro = st.selectbox("Filtrar por Bairro:", ["Todos"] + list(df_imoveis["bairro"].unique()))
@@ -183,7 +182,6 @@ with st.sidebar:
         options=df_filtrado["endereco"].tolist()
     )
     
-    # Obter dados do imóvel selecionado
     dados_loc = df_imoveis[df_imoveis["endereco"] == imovel_escolhido_str].iloc[0]
     
     st.markdown("---")
@@ -198,9 +196,8 @@ with st.sidebar:
 # 5. MAPA INTERATIVO (ESTILO GOOGLE MAPS)
 # ============================================================
 st.subheader("📍 Mapa de Ociosidade e Dívida Ativa")
-st.caption("💡 Dica: Dê zoom no mapa, navegue pelas regiões do Rio e clique nos marcadores para identificar os locais.")
+st.caption("💡 Dica: Dê zoom no mapa, navegue pelas regiões do Rio e visualize os marcadores ativos.")
 
-# Criar o mapa com Plotly OpenStreetMap (Gratuito e sem token)
 fig_mapa = px.scatter_mapbox(
     df_imoveis,
     lat="lat",
@@ -250,7 +247,6 @@ with col_f2:
     </div>
     """, unsafe_allow_html=True)
 
-# Executar simulação com os dados do local escolhido
 sim = calcular_simulacao(dados_loc["area_m2"], dados_loc["valor_aproximado"], trilha_sel)
 
 # ============================================================
@@ -277,7 +273,6 @@ iptu_linha = [0] + sim["iptu_pago"][:11]
 
 fig_proj = go.Figure()
 
-# IPTU (Dourado)
 fig_proj.add_trace(go.Scatter(
     x=anos_eixo, y=iptu_linha, mode="lines+markers",
     name="IPTU Pago (com Isenção)",
