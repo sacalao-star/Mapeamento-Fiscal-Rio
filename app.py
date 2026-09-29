@@ -124,7 +124,8 @@ iss_pct, icms_pct, itbi_pct =
         faturamento_m2 = 8000
         emprego_m2 = 20
         escada = [(8, 0), (9, 25), (10, 50), (999, 100)]
-        iss_pct, icms_pct, itbi_pct = 0.04, 0.01, 0.0
+        iss_pct, icms_pct, itbi_pct = 0.02, 0.03, 0.0
+ 0.04, 0.01, 0.0
     elif trilha == "Educação":
         faturamento_m2 = 3500
         emprego_m2 = 45
