@@ -58,7 +58,7 @@ def render_card(valor, legenda, cor="#0F172A"):
     st.markdown(html, unsafe_allow_html=True)
 
 # ============================================================
-# 2. BASE DE DADOS EXPANDIDA DE IMÓVEIS (RIO DE JANEIRO)
+# 2. BASE DE DADOS COMPLETA DE IMÓVEIS (RIO DE JANEIRO)
 # ============================================================
 df_imoveis = pd.DataFrame([
     # Centro e Zona Portuária
@@ -350,12 +350,12 @@ with st.sidebar:
     
     st.markdown("---")
     st.markdown("### ℹ️ Navegação no Mapa")
-    st.caption("Alterne o imóvel pelo menu acima ou **clique diretamente nos marcadores do mapa**.")
+    st.caption("Alterne o imóvel pelo menu acima ou **clique diretamente nos marcadores do mapa** para mudar a operação instantaneamente.")
 
 dados_loc = df_imoveis[df_imoveis["id"] == st.session_state.selected_id].iloc[0]
 
 # ============================================================
-# 6. MAPA INTERATIVO AMPLIADO (OPENSTREETMAP)
+# 6. MAPA INTERATIVO COM CAPTURA DE CLIQUE EM MARCADORES
 # ============================================================
 st.subheader("📍 Mapa Interativo de Ativos")
 st.caption(f"Ativo selecionado: **{dados_loc['endereco']}** ({len(df_imoveis)} imóveis mapeados na base)")
@@ -374,18 +374,26 @@ for idx, r in df_imoveis.iterrows():
         icon=folium.Icon(color=color, icon=icon_glyph)
     ).add_to(m)
 
+# Captura de cliques no mapa / marcadores
 map_output = st_folium(m, width="100%", height=450, key="mapa_interativo")
 
-if map_output and map_output.get("last_clicked"):
-    clicked_lat = map_output["last_clicked"]["lat"]
-    clicked_lon = map_output["last_clicked"]["lng"]
-    
-    df_imoveis["dist"] = (df_imoveis["lat"] - clicked_lat)**2 + (df_imoveis["lon"] - clicked_lon)**2
-    closest = df_imoveis.loc[df_imoveis["dist"].idxmin()]
-    
-    if closest["dist"] < 0.001 and closest["id"] != st.session_state.selected_id:
-        st.session_state.selected_id = closest["id"]
-        st.rerun()
+clicked_coords = None
+if map_output:
+    if map_output.get("last_object_clicked"):
+        clicked_coords = map_output["last_object_clicked"]
+    elif map_output.get("last_clicked"):
+        clicked_coords = map_output["last_clicked"]
+
+if clicked_coords:
+    clicked_lat = clicked_coords.get("lat")
+    clicked_lon = clicked_coords.get("lng") or clicked_coords.get("lon")
+    if clicked_lat and clicked_lon:
+        df_imoveis["dist"] = (df_imoveis["lat"] - clicked_lat)**2 + (df_imoveis["lon"] - clicked_lon)**2
+        closest = df_imoveis.loc[df_imoveis["dist"].idxmin()]
+        
+        if closest["dist"] < 0.001 and closest["id"] != st.session_state.selected_id:
+            st.session_state.selected_id = closest["id"]
+            st.rerun()
 
 # ============================================================
 # 7. FICHA TÉCNICA DO ATIVO SELECIONADO
