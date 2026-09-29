@@ -58,9 +58,10 @@ def render_card(valor, legenda, cor="#0F172A"):
     st.markdown(html, unsafe_allow_html=True)
 
 # ============================================================
-# 2. BASE DE DADOS DOS IMÓVEIS (COM TRILHA FIXA)
+# 2. BASE DE DADOS EXPANDIDA DE IMÓVEIS (RIO DE JANEIRO)
 # ============================================================
 df_imoveis = pd.DataFrame([
+    # Centro e Zona Portuária
     {
         "id": "SQL-101.002-9", 
         "endereco": "Av. Presidente Vargas, 1200 — Centro", 
@@ -120,6 +121,140 @@ df_imoveis = pd.DataFrame([
         "lat": -22.9078, 
         "lon": -43.1802,
         "detalhes": "Prédio comercial multistore com andares superiores ociosos no calçadão histórico."
+    },
+    {
+        "id": "SQL-602.114-8", 
+        "endereco": "Av. Rio Branco, 156 — Centro", 
+        "bairro": "Centro",
+        "area_m2": 12000, 
+        "valor_aproximado": 48000000, 
+        "status": "Subutilizado", 
+        "trilha": "Varejo, Indústria e Logística", 
+        "lat": -22.9050, 
+        "lon": -43.1775,
+        "detalhes": "Edifício corporativo tradicional com baixa taxa de ocupação nos andares intermediários."
+    },
+    {
+        "id": "SQL-703.441-3", 
+        "endereco": "Rua Senador Pompeu, 180 — Santo Cristo", 
+        "bairro": "Santo Cristo",
+        "area_m2": 18500, 
+        "valor_aproximado": 45000000, 
+        "status": "Dívida Ativa Crítica", 
+        "trilha": "Habitação", 
+        "lat": -22.8930, 
+        "lon": -43.1900,
+        "detalhes": "Antigo complexo de armazéns ferroviários e portuários degradados."
+    },
+    {
+        "id": "SQL-804.552-0", 
+        "endereco": "Praça Tiradentes, 40 — Centro", 
+        "bairro": "Centro",
+        "area_m2": 4500, 
+        "valor_aproximado": 16000000, 
+        "status": "Abandonado", 
+        "trilha": "Educação", 
+        "lat": -22.9070, 
+        "lon": -43.1850,
+        "detalhes": "Edificação de relevância histórica com andares superiores fechados."
+    },
+    {
+        "id": "SQL-905.663-1", 
+        "endereco": "Rua do Ouvidor, 75 — Centro", 
+        "bairro": "Centro",
+        "area_m2": 1800, 
+        "valor_aproximado": 6500000, 
+        "status": "Subutilizado", 
+        "trilha": "Varejo, Indústria e Logística", 
+        "lat": -22.9020, 
+        "lon": -43.1760,
+        "detalhes": "Sobrado comercial multifamiliar ocioso no coração comercial."
+    },
+    # Zona Sul
+    {
+        "id": "SQL-112.774-2", 
+        "endereco": "Rua Visconde de Pirajá, 350 — Ipanema", 
+        "bairro": "Ipanema",
+        "area_m2": 2800, 
+        "valor_aproximado": 28000000, 
+        "status": "Subutilizado", 
+        "trilha": "Varejo, Indústria e Logística", 
+        "lat": -22.9830, 
+        "lon": -43.2040,
+        "detalhes": "Laje corporativa e pavimentos comerciais com longo período de desocupação."
+    },
+    {
+        "id": "SQL-123.885-6", 
+        "endereco": "Praia de Botafogo, 228 — Botafogo", 
+        "bairro": "Botafogo",
+        "area_m2": 6200, 
+        "valor_aproximado": 31000000, 
+        "status": "Dívida Ativa", 
+        "trilha": "Saúde", 
+        "lat": -22.9430, 
+        "lon": -43.1820,
+        "detalhes": "Antiga sede empresarial com excelente infraestrutura ociosa na Enseada de Botafogo."
+    },
+    {
+        "id": "SQL-134.996-7", 
+        "endereco": "Rua do Catete, 190 — Catete", 
+        "bairro": "Catete",
+        "area_m2": 3500, 
+        "valor_aproximado": 12500000, 
+        "status": "Abandonado", 
+        "trilha": "Habitação", 
+        "lat": -22.9250, 
+        "lon": -43.1780,
+        "detalhes": "Solar histórico desocupado com grande potencial de retrofit para moradia."
+    },
+    {
+        "id": "SQL-145.107-8", 
+        "endereco": "Av. Nossa Senhora de Copacabana, 750 — Copacabana", 
+        "bairro": "Copacabana",
+        "area_m2": 2400, 
+        "valor_aproximado": 15000000, 
+        "status": "Subutilizado", 
+        "trilha": "Saúde", 
+        "lat": -22.9670, 
+        "lon": -43.1850,
+        "detalhes": "Galeria comercial com térreo e sobreloja desativados."
+    },
+    # Zona Norte e Grande Tijuca
+    {
+        "id": "SQL-156.218-9", 
+        "endereco": "Av. Maracanã, 450 — Tijuca", 
+        "bairro": "Tijuca",
+        "area_m2": 7000, 
+        "valor_aproximado": 22000000, 
+        "status": "Dívida Ativa Crítica", 
+        "trilha": "Varejo, Indústria e Logística", 
+        "lat": -22.9210, 
+        "lon": -43.2350,
+        "detalhes": "Antigo showroom automotivo e estacionamento de grande porte ocioso."
+    },
+    {
+        "id": "SQL-167.329-0", 
+        "endereco": "Campo de São Cristóvão, 250 — São Cristóvão", 
+        "bairro": "São Cristóvão",
+        "area_m2": 14000, 
+        "valor_aproximado": 35000000, 
+        "status": "Abandonado", 
+        "trilha": "Varejo, Indústria e Logística", 
+        "lat": -22.9010, 
+        "lon": -43.2200,
+        "detalhes": "Galpão industrial obsoleto próximo às vias de escoamento logístico."
+    },
+    {
+        "id": "SQL-178.430-1", 
+        "endereco": "Rua Itapiru, 900 — Rio Comprido", 
+        "bairro": "Rio Comprido",
+        "area_m2": 11000, 
+        "valor_aproximado": 24000000, 
+        "status": "Notificado (IPTU Progressivo)", 
+        "trilha": "Educação", 
+        "lat": -22.9200, 
+        "lon": -43.2050,
+        "detalhes": "Complexo fabril desativado aguardando reconversão de zoneamento."
     }
 ])
 
@@ -220,13 +355,12 @@ with st.sidebar:
 dados_loc = df_imoveis[df_imoveis["id"] == st.session_state.selected_id].iloc[0]
 
 # ============================================================
-# 6. MAPA INTERATIVO LIMPO (OPENSTREETMAP PADRÃO)
+# 6. MAPA INTERATIVO AMPLIADO (OPENSTREETMAP)
 # ============================================================
 st.subheader("📍 Mapa Interativo de Ativos")
-st.caption(f"Ativo selecionado: **{dados_loc['endereco']}**")
+st.caption(f"Ativo selecionado: **{dados_loc['endereco']}** ({len(df_imoveis)} imóveis mapeados na base)")
 
-# Usando OpenStreetMap padrão gratuito (sem necessidade de API key e sem marcas d'água comerciais)
-m = folium.Map(location=[dados_loc["lat"], dados_loc["lon"]], zoom_start=14, tiles="OpenStreetMap")
+m = folium.Map(location=[dados_loc["lat"], dados_loc["lon"]], zoom_start=13, tiles="OpenStreetMap")
 
 for idx, r in df_imoveis.iterrows():
     is_active = (r["id"] == dados_loc["id"])
@@ -240,7 +374,7 @@ for idx, r in df_imoveis.iterrows():
         icon=folium.Icon(color=color, icon=icon_glyph)
     ).add_to(m)
 
-map_output = st_folium(m, width="100%", height=420, key="mapa_interativo")
+map_output = st_folium(m, width="100%", height=450, key="mapa_interativo")
 
 if map_output and map_output.get("last_clicked"):
     clicked_lat = map_output["last_clicked"]["lat"]
@@ -306,7 +440,6 @@ iptu_barras = [0] + sim["iptu_pago"][:11]
 
 fig_proj = go.Figure()
 
-# Gráfico de barras moderno e limpo
 fig_proj.add_trace(go.Bar(
     x=anos_eixo, y=iptu_barras,
     name="IPTU Arrecadado",
