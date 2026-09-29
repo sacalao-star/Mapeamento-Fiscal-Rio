@@ -13,14 +13,14 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Estilização CSS pura (sem f-string para garantir imunidade a erros de chaves)
+# Estilização CSS limpa e moderna
 st.markdown("""
 <style>
     .stApp { background-color: #FFFFFF !important; color: #0F172A !important; }
     div[data-testid="stSidebar"] { background-color: #F1F5F9 !important; border-right: 1.5px solid #CBD5E1; }
     
     .gov-badge {
-        background: linear-gradient(135deg, #0A192F 0%, #1E3A8A 100%);
+        background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
         border: 1.5px solid #D97706;
         border-radius: 12px;
         padding: 20px 24px;
@@ -123,7 +123,6 @@ df_imoveis = pd.DataFrame([
     }
 ])
 
-# Sincronização de estado para seleção via Mapa ou Sidebar
 if "selected_id" not in st.session_state:
     st.session_state.selected_id = df_imoveis.iloc[0]["id"]
 
@@ -182,13 +181,13 @@ def calcular_simulacao(area, valor_venal, trilha):
     }
 
 # ============================================================
-# 4. CABEÇALHO INSTITUCIONAL PRISMA RIO
+# 4. CABEÇALHO PROFISSIONAL INDEPENDENTE
 # ============================================================
 st.markdown("""
 <div class="gov-badge">
-    <div class="gov-header-top">Prefeitura da Cidade do Rio de Janeiro · Secretaria Municipal de Fazenda e Planejamento Urbano</div>
+    <div class="gov-header-top">Núcleo de Estudos de Inteligência Territorial e Urbana</div>
     <div class="main-title">PRISMA RIO</div>
-    <div class="sub-title">Plataforma de Reconversão Imobiliária, Sustentabilidade e Municipalidade de Ativos</div>
+    <div class="sub-title">Plataforma Independente de Reconversão Imobiliária e Simulação de Impacto Fiscal</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -216,17 +215,18 @@ with st.sidebar:
     
     st.markdown("---")
     st.markdown("### ℹ️ Navegação no Mapa")
-    st.caption("Você pode alternar os imóveis pelo menu acima ou **clicando diretamente nos marcadores** do mapa interativo.")
+    st.caption("Alterne o imóvel pelo menu acima ou **clique diretamente nos marcadores do mapa**.")
 
 dados_loc = df_imoveis[df_imoveis["id"] == st.session_state.selected_id].iloc[0]
 
 # ============================================================
-# 6. MAPA INTERATIVO CLICÁVEL (FOLIUM)
+# 6. MAPA INTERATIVO LIMPO (OPENSTREETMAP PADRÃO)
 # ============================================================
-st.subheader("📍 Mapa Executivo de Ativos Ociosos")
-st.caption(f"Ativo em foco: **{dados_loc['endereco']}** (Clique em qualquer marcador no mapa para selecioná-lo instantaneamente).")
+st.subheader("📍 Mapa Interativo de Ativos")
+st.caption(f"Ativo selecionado: **{dados_loc['endereco']}**")
 
-m = folium.Map(location=[dados_loc["lat"], dados_loc["lon"]], zoom_start=14, tiles="CartoDB positron")
+# Usando OpenStreetMap padrão gratuito (sem necessidade de API key e sem marcas d'água comerciais)
+m = folium.Map(location=[dados_loc["lat"], dados_loc["lon"]], zoom_start=14, tiles="OpenStreetMap")
 
 for idx, r in df_imoveis.iterrows():
     is_active = (r["id"] == dados_loc["id"])
@@ -283,11 +283,11 @@ with col_f2:
 sim = calcular_simulacao(dados_loc["area_m2"], dados_loc["valor_aproximado"], dados_loc["trilha"])
 
 # ============================================================
-# 8. PROJEÇÃO MATEMÁTICA E GRÁFICO EXECUTIVO PROFISSIONAL
+# 8. PROJEÇÃO MATEMÁTICA E GRÁFICO EXECUTIVO DE BARRAS
 # ============================================================
 st.markdown("---")
 st.subheader("📈 Projeção Matemática e Balanço Fiscal (13 Anos)")
-st.caption("Simulação de impacto socioeconômico e arrecadação contínua comparando a isenção regressiva de IPTU com a entrada de tributos indiretos.")
+st.caption("Simulação comparativa do fluxo de arrecadação tributária ao longo dos anos.")
 
 m1, m2, m3 = st.columns(3)
 with m1:
@@ -299,62 +299,56 @@ with m3:
     render_card(fmt_moeda(tot_indireto_ano1), "Tributos Indiretos (Ano 1)", "#059669")
 
 st.write("")
-st.subheader("📊 Gráfico Executivo de Evolução Tributária (Ano 0 ao Ano 11)")
+st.subheader("📊 Gráfico Comparativo Anual de Arrecadação")
 
 anos_eixo = [f"Ano {a}" for a in range(0, 12)]
-iptu_linha = [0] + sim["iptu_pago"][:11]
+iptu_barras = [0] + sim["iptu_pago"][:11]
 
 fig_proj = go.Figure()
 
-fig_proj.add_trace(go.Scatter(
-    x=anos_eixo, y=iptu_linha, mode="lines+markers",
-    name="IPTU Arrecadado (Escada)",
-    line=dict(color="#D97706", width=3, shape="spline"),
-    marker=dict(size=7, color="#D97706"),
-    fill="tozeroy", fillcolor="rgba(217, 119, 6, 0.08)"
+# Gráfico de barras moderno e limpo
+fig_proj.add_trace(go.Bar(
+    x=anos_eixo, y=iptu_barras,
+    name="IPTU Arrecadado",
+    marker_color="#D97706"
 ))
 
 if dados_loc["trilha"] == "Habitação":
-    itbi_linha = [0, sim["itbi"]] + [0] * 10
-    fig_proj.add_trace(go.Scatter(
-        x=anos_eixo, y=itbi_linha, mode="lines+markers",
-        name="ITBI (Operação Inicial)",
-        line=dict(color="#059669", width=3, shape="spline"),
-        marker=dict(size=7, color="#059669"),
-        fill="tozeroy", fillcolor="rgba(5, 150, 105, 0.08)"
+    itbi_barras = [0, sim["itbi"]] + [0] * 10
+    fig_proj.add_trace(go.Bar(
+        x=anos_eixo, y=itbi_barras,
+        name="ITBI (Operação)",
+        marker_color="#059669"
     ))
 else:
-    iss_linha = [0] + [sim["iss"]] * 11
-    icms_linha = [0] + [sim["icms"]] * 11
+    iss_barras = [0] + [sim["iss"]] * 11
+    icms_barras = [0] + [sim["icms"]] * 11
     
-    fig_proj.add_trace(go.Scatter(
-        x=anos_eixo, y=iss_linha, mode="lines+markers",
+    fig_proj.add_trace(go.Bar(
+        x=anos_eixo, y=iss_barras,
         name="ISS (Serviços)",
-        line=dict(color="#2563EB", width=3, shape="spline"),
-        marker=dict(size=7, color="#2563EB"),
-        fill="tozeroy", fillcolor="rgba(37, 99, 235, 0.08)"
+        marker_color="#2563EB"
     ))
-    fig_proj.add_trace(go.Scatter(
-        x=anos_eixo, y=icms_linha, mode="lines+markers",
+    fig_proj.add_trace(go.Bar(
+        x=anos_eixo, y=icms_barras,
         name="ICMS / VAF",
-        line=dict(color="#059669", width=3, shape="spline"),
-        marker=dict(size=7, color="#059669"),
-        fill="tozeroy", fillcolor="rgba(5, 150, 105, 0.08)"
+        marker_color="#059669"
     ))
 
 fig_proj.update_layout(
+    barmode="group",
     plot_bgcolor="#FFFFFF",
     paper_bgcolor="#FFFFFF",
     legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0, font=dict(color="#0F172A", size=12)),
     margin=dict(l=10, r=10, t=20, b=10),
     height=400,
-    xaxis=dict(showgrid=True, gridcolor="#F1F5F9", tickfont=dict(color="#0F172A")),
+    xaxis=dict(showgrid=False, tickfont=dict(color="#0F172A")),
     yaxis=dict(gridcolor="#E2E8F0", tickprefix="R$ ", tickfont=dict(color="#0F172A"))
 )
 
 st.plotly_chart(fig_proj, use_container_width=True)
 st.markdown("""
 <div style="background-color: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #334155; margin-top: 10px;">
-    💡 <b>Nota Executiva de Balanço Fiscal:</b> Na fase de implantação (Ano 0), a arrecadação é nula. A partir do início das atividades no Ano 1, os tributos indiretos (ISS/ICMS) entram em patamar contínuo e elevado, compensando integralmente a isenção gradual do IPTU concedida pelo programa de reconversão.
+    💡 <b>Nota Analítica:</b> O modelo demonstra o salto na arrecadação municipal com a conversão de ativos ociosos, equilibrando a transição fiscal de curto e longo prazo.
 </div>
 """, unsafe_allow_html=True)
