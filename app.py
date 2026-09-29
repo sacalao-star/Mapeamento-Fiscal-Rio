@@ -35,7 +35,7 @@ st.markdown(f"""
         text-align: left;
         margin-bottom: 24px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
+    }}
     .gov-header-top {{ color: #FBBF24; font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }}
     .main-title {{ color: #FFFFFF; font-size: 26px; font-weight: 800; margin: 0; letter-spacing: 0.5px; }}
     .sub-title {{ color: #E2E8F0; font-size: 13.5px; margin-top: 4px; }}
@@ -275,7 +275,7 @@ with col_f1:
         <p style="margin: 0; font-size: 13.5px; color: #334155; line-height: 1.5;"><b>Diagnóstico Urbano:</b> {dados_loc['detalhes']}</p>
         <p style="margin: 10px 0 0 0; font-size: 13.5px; color: {NAVY};"><b>Vocação Setorial (Trilha):</b> <b>{dados_loc['trilha']}</b></p>
         <hr style="margin: 12px 0; border-color: {BORDER_COLOR};">
-        <span style="background-color: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold;">⚠️️ {dados_loc['status']}</span>
+        <span style="background-color: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold;">⚠️ {dados_loc['status']}</span>
     </div>
     """, unsafe_allow_html=True)
 
