@@ -43,7 +43,7 @@ def render_card(valor, legenda, cor="#1B3A5C"):
     st.markdown(html, unsafe_allow_html=True)
 
 # ============================================================
-# 2. BASE DE DADOS DOS IMÓVEIS (MAPEAMENTO GEOGRÁFICO)
+# 2. BASE DE DADOS DOS IMÓVEIS (COM TRILHA FIXA POR LOCAL)
 # ============================================================
 df_imoveis = pd.DataFrame([
     {
@@ -53,7 +53,7 @@ df_imoveis = pd.DataFrame([
         "area_m2": 8500, 
         "valor_aproximado": 25500000, 
         "status": "Dívida Ativa Crítica", 
-        "trilha_padrao": "Varejo, Indústria e Logística", 
+        "trilha": "Varejo, Indústria e Logística", 
         "lat": -22.9035, 
         "lon": -43.1812,
         "detalhes": "Antigo edifício comercial vazio há 6 anos. Possui passivo acumulado de IPTU e taxas."
@@ -65,7 +65,7 @@ df_imoveis = pd.DataFrame([
         "area_m2": 3200, 
         "valor_aproximado": 9600000, 
         "status": "Subutilizado", 
-        "trilha_padrao": "Saúde", 
+        "trilha": "Saúde", 
         "lat": -22.9103, 
         "lon": -43.1818,
         "detalhes": "Sobrado de grande porte com pavimento superior abandonado. Ideal para clínica ou centro médico de atendimento."
@@ -77,7 +77,7 @@ df_imoveis = pd.DataFrame([
         "area_m2": 15000, 
         "valor_aproximado": 52500000, 
         "status": "Abandonado (Porto Maravilha)", 
-        "trilha_padrao": "Habitação", 
+        "trilha": "Habitação", 
         "lat": -22.8955, 
         "lon": -43.1850,
         "detalhes": "Galpão logístico obsoleto na Zona Portuária. Potencial para retrofit residencial (Reviver Centro)."
@@ -89,7 +89,7 @@ df_imoveis = pd.DataFrame([
         "area_m2": 5000, 
         "valor_aproximado": 14000000, 
         "status": "Notificado (IPTU Progressivo)", 
-        "trilha_padrao": "Educação", 
+        "trilha": "Educação", 
         "lat": -22.9150, 
         "lon": -43.1880,
         "detalhes": "Terreno com edificação escolar desativada. Alvo de notificação para cumprimento da função social da propriedade."
@@ -101,7 +101,7 @@ df_imoveis = pd.DataFrame([
         "area_m2": 2100, 
         "valor_aproximado": 7350000, 
         "status": "Dívida Ativa", 
-        "trilha_padrao": "Varejo, Indústria e Logística", 
+        "trilha": "Varejo, Indústria e Logística", 
         "lat": -22.9078, 
         "lon": -43.1802,
         "detalhes": "Prédio comercial multistore com andares superiores ociosos no calçadão histórico."
@@ -166,7 +166,7 @@ def calcular_simulacao(area, valor_venal, trilha):
 # 4. INTERFACE DO APLICATIVO
 # ============================================================
 st.title("🗺️ GIS-Gov Rio | Mapeamento de Ativos e Projeção Fiscal")
-st.markdown("Navegue pelo mapa interativo do município, explore os imóveis mapeados em **dívida ativa / ociosos** (pontos vermelhos) e selecione para simular o potencial de arrecadação e empregos.")
+st.markdown("Navegue pelo mapa interativo, explore os imóveis mapeados em **dívida ativa / ociosos** (pontos vermelhos) e selecione o endereço desejado para auditar o potencial de arrecadação.")
 
 with st.sidebar:
     st.header("🎯 Seleção de Imóveis")
@@ -178,22 +178,14 @@ with st.sidebar:
         df_filtrado = df_imoveis
         
     imovel_escolhido_str = st.selectbox(
-        "Escolha o Imóvel:",
+        "Escolha o Endereço:",
         options=df_filtrado["endereco"].tolist()
     )
     
     dados_loc = df_imoveis[df_imoveis["endereco"] == imovel_escolhido_str].iloc[0]
-    
-    st.markdown("---")
-    st.markdown("### ⚙️ Parâmetro de Trilha")
-    trilha_sel = st.selectbox(
-        "Trilha Setorial de Reconversão:",
-        ["Varejo, Indústria e Logística", "Saúde", "Educação", "Habitação"],
-        index=["Varejo, Indústria e Logística", "Saúde", "Educação", "Habitação"].index(dados_loc["trilha_padrao"])
-    )
 
 # ============================================================
-# 5. MAPA INTERATIVO (ESTILO GOOGLE MAPS)
+# 5. MAPA INTERATIVO CORRIGIDO
 # ============================================================
 st.subheader("📍 Mapa de Ociosidade e Dívida Ativa")
 st.caption("💡 Dica: Dê zoom no mapa, navegue pelas regiões do Rio e visualize os marcadores ativos.")
@@ -207,12 +199,12 @@ fig_mapa = px.scatter_mapbox(
     color_discrete_sequence=[VERMELHO],
     zoom=13,
     center={"lat": dados_loc["lat"], "lon": dados_loc["lon"]},
+    mapbox_style="open-street-map",
     height=420
 )
 
 fig_mapa.update_traces(marker=dict(size=14, symbol="circle"))
 fig_mapa.update_layout(
-    mapbox_style="open-street-map",
     margin=dict(l=0, r=0, t=0, b=0),
     paper_bgcolor="#FFFFFF",
 )
@@ -233,6 +225,7 @@ with col_f1:
         <p style="margin: 0; font-size: 12px; color: #475569; font-weight: bold;">INSCRIÇÃO IMOBILIÁRIA (SQL): {dados_loc['id']}</p>
         <p style="margin: 4px 0 10px 0; font-size: 17px; font-weight: 800; color: #1B3A5C;">{dados_loc['endereco']}</p>
         <p style="margin: 0; font-size: 13.5px; color: #0F172A; line-height: 1.5;"><b>Contexto Urbano:</b> {dados_loc['detalhes']}</p>
+        <p style="margin: 10px 0 0 0; font-size: 13.5px; color: #1B3A5C;"><b>Trilha Definida para o Local:</b> <b>{dados_loc['trilha']}</b></p>
         <hr style="margin: 12px 0; border-color: #CBD5E1;">
         <span style="background-color: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold;">⚠️ {dados_loc['status']}</span>
     </div>
@@ -247,7 +240,7 @@ with col_f2:
     </div>
     """, unsafe_allow_html=True)
 
-sim = calcular_simulacao(dados_loc["area_m2"], dados_loc["valor_aproximado"], trilha_sel)
+sim = calcular_simulacao(dados_loc["area_m2"], dados_loc["valor_aproximado"], dados_loc["trilha"])
 
 # ============================================================
 # 7. PROJEÇÃO MATEMÁTICA E ECONÔMICA (LÁ EM BAIXO)
@@ -279,7 +272,7 @@ fig_proj.add_trace(go.Scatter(
     line=dict(color=GOLD, width=4, shape="spline"), marker=dict(size=8)
 ))
 
-if trilha_sel == "Habitação":
+if dados_loc["trilha"] == "Habitação":
     itbi_linha = [0, sim["itbi"]] + [0] * 10
     fig_proj.add_trace(go.Scatter(
         x=anos_eixo, y=itbi_linha, mode="lines+markers",
