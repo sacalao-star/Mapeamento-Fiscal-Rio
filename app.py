@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
 
 # ============================================================
@@ -166,7 +165,7 @@ def calcular_simulacao(area, valor_venal, trilha):
 # 4. INTERFACE DO APLICATIVO
 # ============================================================
 st.title("🗺️ GIS-Gov Rio | Mapeamento de Ativos e Projeção Fiscal")
-st.markdown("Navegue pelo mapa interativo, explore os imóveis mapeados em **dívida ativa / ociosos** (pontos vermelhos) e selecione o endereço desejado para auditar o potencial de arrecadação.")
+st.markdown("Navegue pelo mapa interativo, explore os imóveis mapeados em **dívida ativa / ociosos** e selecione o endereço desejado na barra lateral para auditar o potencial de arrecadação.")
 
 with st.sidebar:
     st.header("🎯 Seleção de Imóveis")
@@ -185,31 +184,13 @@ with st.sidebar:
     dados_loc = df_imoveis[df_imoveis["endereco"] == imovel_escolhido_str].iloc[0]
 
 # ============================================================
-# 5. MAPA INTERATIVO CORRIGIDO
+# 5. MAPA NATIVO ESTÁVEL (SEM ERROS DE MAPBOX)
 # ============================================================
 st.subheader("📍 Mapa de Ociosidade e Dívida Ativa")
-st.caption("💡 Dica: Dê zoom no mapa, navegue pelas regiões do Rio e visualize os marcadores ativos.")
+st.caption(f"📍 Local selecionado em destaque: **{dados_loc['endereco']}**")
 
-fig_mapa = px.scatter_mapbox(
-    df_imoveis,
-    lat="lat",
-    lon="lon",
-    hover_name="endereco",
-    hover_data=["id", "status", "valor_aproximado"],
-    color_discrete_sequence=[VERMELHO],
-    zoom=13,
-    center={"lat": dados_loc["lat"], "lon": dados_loc["lon"]},
-    mapbox_style="open-street-map",
-    height=420
-)
-
-fig_mapa.update_traces(marker=dict(size=14, symbol="circle"))
-fig_mapa.update_layout(
-    margin=dict(l=0, r=0, t=0, b=0),
-    paper_bgcolor="#FFFFFF",
-)
-
-st.plotly_chart(fig_mapa, use_container_width=True)
+# Utilizando o st.map nativo do Streamlit (100% estável e à prova de falhas)
+st.map(df_imoveis, latitude="lat", longitude="lon", zoom=13)
 
 # ============================================================
 # 6. PAINEL DE DADOS DO IMÓVEL SELECIONADO
