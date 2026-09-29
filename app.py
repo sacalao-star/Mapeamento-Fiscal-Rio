@@ -117,7 +117,8 @@ def calcular_simulacao(area, valor_venal, trilha):
         faturamento_m2 = 6000
         emprego_m2 = 25
         escada = [(6, 0), (8, 25), (10, 50), (999, 100)]
-iss_pct, icms_pct, itbi_pct = 0.02, 0.03, 0.0
+iss_pct, icms_pct, itbi_pct = 
+0.02, 0.03, 0.0
  0.02, 0.03, 0.0
     elif trilha == "Saúde":
         faturamento_m2 = 8000
