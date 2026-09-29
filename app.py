@@ -1,31 +1,55 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
+import folium
+from streamlit_folium import st_folium
 
 # ============================================================
-# 1. CONFIGURAÇÃO DA PÁGINA
+# 1. CONFIGURAÇÃO DA PÁGINA E ESTILOS
 # ============================================================
 st.set_page_config(
-    page_title="GIS-Gov Rio | Mapeamento e Projeção Fiscal",
+    page_title="PRISMA RIO · Inteligência Territorial e Balanço Fiscal",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Paleta de Cores Institucionais
-NAVY = "#1B3A5C"
-GOLD = "#B8892F"
-VERMELHO = "#B42318"
-VERDE = "#15803D"
-AZUL_ROYAL = "#2563EB"
-TXT_DARK = "#0F172A"
+# Paleta de Cores Institucionais Executivas
+NAVY = "#0F172A"
+BLUE = "#2563EB"
+GOLD = "#D97706"
+GREEN = "#059669"
+RED = "#DC2626"
+BG_LIGHT = "#F8FAFC"
+BORDER_COLOR = "#CBD5E1"
 
-st.markdown("""
+st.markdown(f"""
 <style>
-    .metric-card { background: #F8FAFC; border: 1.5px solid #CBD5E1; border-radius: 8px; padding: 14px; text-align: center; margin-bottom: 10px; }
-    .metric-val { font-size: 22px; font-weight: 800; }
-    .metric-lbl { color: #475569; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-top: 4px; }
-    .stApp { background-color: #FFFFFF; color: #0F172A; }
-    div[data-testid="stSidebar"] { background-color: #F1F5F9; border-right: 1.5px solid #CBD5E1; }
+    .stApp {{ background-color: #FFFFFF !important; color: {NAVY} !important; }}
+    div[data-testid="stSidebar"] {{ background-color: #F1F5F9 !important; border-right: 1.5px solid {BORDER_COLOR}; }}
+    
+    .gov-badge {{
+        background: linear-gradient(135deg, #0A192F 0%, #1E3A8A 100%);
+        border: 1.5px solid {GOLD};
+        border-radius: 12px;
+        padding: 20px 24px;
+        text-align: left;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .gov-header-top {{ color: #FBBF24; font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }}
+    .main-title {{ color: #FFFFFF; font-size: 26px; font-weight: 800; margin: 0; letter-spacing: 0.5px; }}
+    .sub-title {{ color: #E2E8F0; font-size: 13.5px; margin-top: 4px; }}
+    
+    .metric-card {{
+        background: {BG_LIGHT};
+        border: 1.5px solid {BORDER_COLOR};
+        border-radius: 10px;
+        padding: 16px;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    .metric-val {{ font-size: 22px; font-weight: 800; }}
+    .metric-lbl {{ color: #475569; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-top: 4px; }}
 </style>
 """, unsafe_allow_html=True)
 
@@ -37,12 +61,12 @@ def fmt_num(val):
     if val is None: return "0"
     return f"{round(val):,.0f}".replace(",", ".")
 
-def render_card(valor, legenda, cor="#1B3A5C"):
+def render_card(valor, legenda, cor=NAVY):
     html = f'<div class="metric-card"><div class="metric-val" style="color:{cor};">{valor}</div><div class="metric-lbl">{legenda}</div></div>'
     st.markdown(html, unsafe_allow_html=True)
 
 # ============================================================
-# 2. BASE DE DADOS DOS IMÓVEIS (COM TRILHA FIXA POR LOCAL)
+# 2. BASE DE DADOS DOS IMÓVEIS (COM TRILHA FIXA)
 # ============================================================
 df_imoveis = pd.DataFrame([
     {
@@ -55,7 +79,7 @@ df_imoveis = pd.DataFrame([
         "trilha": "Varejo, Indústria e Logística", 
         "lat": -22.9035, 
         "lon": -43.1812,
-        "detalhes": "Antigo edifício comercial vazio há 6 anos. Possui passivo acumulado de IPTU e taxas."
+        "detalhes": "Antigo edifício comercial vazio há 6 anos. Passivo acumulado de IPTU e taxas municipais."
     },
     {
         "id": "SQL-204.015-1", 
@@ -67,31 +91,31 @@ df_imoveis = pd.DataFrame([
         "trilha": "Saúde", 
         "lat": -22.9103, 
         "lon": -43.1818,
-        "detalhes": "Sobrado de grande porte com pavimento superior abandonado. Ideal para clínica ou centro médico de atendimento."
+        "detalhes": "Sobrado de grande porte com pavimento superior abandonado. Alta demanda para clínica médica."
     },
     {
         "id": "SQL-309.882-4", 
-        "endereco": "Av. Rodrigues Alves, 315 — Saúde (Porto)", 
-        "bairro": "Saúde",
+        "endereco": "Av. Rodrigues Alves, 315 — Saúde", 
+        "bairro": "Saúde (Porto)",
         "area_m2": 15000, 
         "valor_aproximado": 52500000, 
         "status": "Abandonado (Porto Maravilha)", 
         "trilha": "Habitação", 
         "lat": -22.8955, 
         "lon": -43.1850,
-        "detalhes": "Galpão logístico obsoleto na Zona Portuária. Potencial para retrofit residencial (Reviver Centro)."
+        "detalhes": "Galpão obsoleto na Zona Portuária. Potencial estratégico para retrofit residencial (Reviver Centro)."
     },
     {
         "id": "SQL-412.330-7", 
-        "endereco": "Rua Riachuelo, 210 — Bairro de Fátima", 
-        "bairro": "Fátima",
+        "endereco": "Rua Riachuelo, 210 — Fátima", 
+        "bairro": "Bairro de Fátima",
         "area_m2": 5000, 
         "valor_aproximado": 14000000, 
         "status": "Notificado (IPTU Progressivo)", 
         "trilha": "Educação", 
         "lat": -22.9150, 
         "lon": -43.1880,
-        "detalhes": "Terreno com edificação escolar desativada. Alvo de notificação para cumprimento da função social da propriedade."
+        "detalhes": "Terreno com edificação escolar desativada. Alvo de notificação por descumprimento de função social."
     },
     {
         "id": "SQL-501.991-2", 
@@ -106,6 +130,10 @@ df_imoveis = pd.DataFrame([
         "detalhes": "Prédio comercial multistore com andares superiores ociosos no calçadão histórico."
     }
 ])
+
+# Sincronização de estado para seleção via Mapa ou Sidebar
+if "selected_id" not in st.session_state:
+    st.session_state.selected_id = df_imoveis.iloc[0]["id"]
 
 # ============================================================
 # 3. MOTOR DE CÁLCULO FISCAL E ECONÔMICO
@@ -162,85 +190,124 @@ def calcular_simulacao(area, valor_venal, trilha):
     }
 
 # ============================================================
-# 4. INTERFACE DO APLICATIVO
+# 4. CABEÇALHO INSTITUCIONAL PRISMA RIO
 # ============================================================
-st.title("🗺️ GIS-Gov Rio | Mapeamento de Ativos e Projeção Fiscal")
-st.markdown("Navegue pelo mapa interativo, explore os imóveis mapeados em **dívida ativa / ociosos** e selecione o endereço desejado na barra lateral para auditar o potencial de arrecadação.")
+st.markdown("""
+<div class="gov-badge">
+    <div class="gov-header-top">Prefeitura da Cidade do Rio de Janeiro · Secretaria Municipal de Fazenda e Planejamento Urbano</div>
+    <div class="main-title">PRISMA RIO</div>
+    <div class="sub-title">Plataforma de Reconversão Imobiliária, Sustentabilidade e Municipalidade de Ativos</div>
+</div>
+""", unsafe_allow_html=True)
 
+# ============================================================
+# 5. BARRA LATERAL (SELEÇÃO)
+# ============================================================
 with st.sidebar:
-    st.header("🎯 Seleção de Imóveis")
-    bairro_filtro = st.selectbox("Filtrar por Bairro:", ["Todos"] + list(df_imoveis["bairro"].unique()))
+    st.header("🎯 Filtros e Ativos")
+    bairro_filtro = st.selectbox("Filtrar por Região:", ["Todos os Bairros"] + list(df_imoveis["bairro"].unique()))
     
-    if bairro_filtro != "Todos":
-        df_filtrado = df_imoveis[df_imoveis["bairro"] == bairro_filtro]
-    else:
-        df_filtrado = df_imoveis
-        
-    imovel_escolhido_str = st.selectbox(
-        "Escolha o Endereço:",
-        options=df_filtrado["endereco"].tolist()
+    df_filtrado = df_imoveis if bairro_filtro == "Todos os Bairros" else df_imoveis[df_imoveis["bairro"] == bairro_filtro]
+    
+    current_idx = 0
+    if st.session_state.selected_id in df_filtrado["id"].values:
+        current_idx = list(df_filtrado["id"].values).index(st.session_state.selected_id)
+
+    imovel_escolhido = st.selectbox(
+        "Selecione o Endereço:",
+        options=df_filtrado["endereco"].tolist(),
+        index=current_idx
     )
     
-    dados_loc = df_imoveis[df_imoveis["endereco"] == imovel_escolhido_str].iloc[0]
+    row_selecionada = df_filtrado[df_filtrado["endereco"] == imovel_escolhido].iloc[0]
+    st.session_state.selected_id = row_selecionada["id"]
+    
+    st.markdown("---")
+    st.markdown("### ℹ️ Navegação no Mapa")
+    st.caption("Você pode alternar os imóveis pelo menu acima ou **clicando diretamente nos marcadores** do mapa interativo.")
+
+dados_loc = df_imoveis[df_imoveis["id"] == st.session_state.selected_id].iloc[0]
 
 # ============================================================
-# 5. MAPA NATIVO ESTÁVEL (SEM ERROS DE MAPBOX)
+# 6. MAPA INTERATIVO CLICÁVEL (FOLIUM)
 # ============================================================
-st.subheader("📍 Mapa de Ociosidade e Dívida Ativa")
-st.caption(f"📍 Local selecionado em destaque: **{dados_loc['endereco']}**")
+st.subheader("📍 Mapa Executivo de Ativos Ociosos")
+st.caption(f"Ativo em foco: **{dados_loc['endereco']}** (Clique em qualquer marcador no mapa para selecioná-lo instantaneamente).")
 
-# Utilizando o st.map nativo do Streamlit (100% estável e à prova de falhas)
-st.map(df_imoveis, latitude="lat", longitude="lon", zoom=13)
+m = folium.Map(location=[dados_loc["lat"], dados_loc["lon"]], zoom_start=14, tiles="CartoDB positron")
+
+for idx, r in df_imoveis.iterrows():
+    is_active = (r["id"] == dados_loc["id"])
+    color = "blue" if is_active else "red"
+    icon_glyph = "star" if is_active else "info-sign"
+    
+    folium.Marker(
+        location=[r["lat"], r["lon"]],
+        popup=f"<b>{r['endereco']}</b><br>Status: {r['status']}<br>Área: {r['area_m2']} m²",
+        tooltip=f"{r['id']} - {r['bairro']}",
+        icon=folium.Icon(color=color, icon=icon_glyph)
+    ).add_to(m)
+
+map_output = st_folium(m, width="100%", height=420, key="mapa_interativo")
+
+if map_output and map_output.get("last_clicked"):
+    clicked_lat = map_output["last_clicked"]["lat"]
+    clicked_lon = map_output["last_clicked"]["lng"]
+    
+    df_imoveis["dist"] = (df_imoveis["lat"] - clicked_lat)**2 + (df_imoveis["lon"] - clicked_lon)**2
+    closest = df_imoveis.loc[df_imoveis["dist"].idxmin()]
+    
+    if closest["dist"] < 0.001 and closest["id"] != st.session_state.selected_id:
+        st.session_state.selected_id = closest["id"]
+        st.rerun()
 
 # ============================================================
-# 6. PAINEL DE DADOS DO IMÓVEL SELECIONADO
+# 7. FICHA TÉCNICA DO ATIVO SELECIONADO
 # ============================================================
 st.markdown("---")
-st.subheader(f"🏢 Ficha do Imóvel Selecionado: {dados_loc['bairro']}")
-
 col_f1, col_f2 = st.columns([1.5, 1])
 
 with col_f1:
     st.markdown(f"""
-    <div style="background-color: #F8FAFC; border: 1.5px solid #CBD5E1; border-radius: 10px; padding: 18px;">
+    <div style="background-color: {BG_LIGHT}; border: 1.5px solid {BORDER_COLOR}; border-radius: 10px; padding: 18px;">
         <p style="margin: 0; font-size: 12px; color: #475569; font-weight: bold;">INSCRIÇÃO IMOBILIÁRIA (SQL): {dados_loc['id']}</p>
-        <p style="margin: 4px 0 10px 0; font-size: 17px; font-weight: 800; color: #1B3A5C;">{dados_loc['endereco']}</p>
-        <p style="margin: 0; font-size: 13.5px; color: #0F172A; line-height: 1.5;"><b>Contexto Urbano:</b> {dados_loc['detalhes']}</p>
-        <p style="margin: 10px 0 0 0; font-size: 13.5px; color: #1B3A5C;"><b>Trilha Definida para o Local:</b> <b>{dados_loc['trilha']}</b></p>
-        <hr style="margin: 12px 0; border-color: #CBD5E1;">
-        <span style="background-color: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold;">⚠️ {dados_loc['status']}</span>
+        <p style="margin: 4px 0 10px 0; font-size: 18px; font-weight: 800; color: {NAVY};">{dados_loc['endereco']}</p>
+        <p style="margin: 0; font-size: 13.5px; color: #334155; line-height: 1.5;"><b>Diagnóstico Urbano:</b> {dados_loc['detalhes']}</p>
+        <p style="margin: 10px 0 0 0; font-size: 13.5px; color: {NAVY};"><b>Vocação Setorial (Trilha):</b> <b>{dados_loc['trilha']}</b></p>
+        <hr style="margin: 12px 0; border-color: {BORDER_COLOR};">
+        <span style="background-color: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold;">⚠️️ {dados_loc['status']}</span>
     </div>
     """, unsafe_allow_html=True)
 
 with col_f2:
     st.markdown(f"""
-    <div style="background-color: #F1F5F9; border: 1.5px solid #CBD5E1; border-radius: 10px; padding: 18px; text-align: center;">
-        <div style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Valor Aproximado do Imóvel (Venal / Mercado)</div>
-        <div style="font-size: 26px; font-weight: 800; color: #B8892F; margin-top: 6px;">{fmt_moeda(dados_loc['valor_aproximado'])}</div>
-        <div style="font-size: 12px; color: #0F172A; margin-top: 4px;">Área Construída / Lote: <b>{fmt_num(dados_loc['area_m2'])} m²</b></div>
+    <div style="background-color: #F1F5F9; border: 1.5px solid {BORDER_COLOR}; border-radius: 10px; padding: 18px; text-align: center;">
+        <div style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Valor de Mercado / Venal Estimado</div>
+        <div style="font-size: 28px; font-weight: 800; color: {GOLD}; margin-top: 6px;">{fmt_moeda(dados_loc['valor_aproximado'])}</div>
+        <div style="font-size: 13px; color: #334155; margin-top: 6px;">Área Útil / Terreno: <b>{fmt_num(dados_loc['area_m2'])} m²</b></div>
     </div>
     """, unsafe_allow_html=True)
 
 sim = calcular_simulacao(dados_loc["area_m2"], dados_loc["valor_aproximado"], dados_loc["trilha"])
 
 # ============================================================
-# 7. PROJEÇÃO MATEMÁTICA E ECONÔMICA (LÁ EM BAIXO)
+# 8. PROJEÇÃO MATEMÁTICA E GRÁFICO EXECUTIVO PROFISSIONAL
 # ============================================================
 st.markdown("---")
-st.subheader("📈 Projeção Matemática e Retorno Econômico (13 Anos)")
-st.caption("Resultados estimados de impacto socioeconômico e arrecadação tributária com base na reconversão funcional do ativo selecionado.")
+st.subheader("📈 Projeção Matemática e Balanço Fiscal (13 Anos)")
+st.caption("Simulação de impacto socioeconômico e arrecadação contínua comparando a isenção regressiva de IPTU com a entrada de tributos indiretos.")
 
 m1, m2, m3 = st.columns(3)
 with m1:
-    render_card(fmt_num(sim["empregos"]), "Empregos Diretos Estimados", NAVY)
+    render_card(fmt_num(sim["empregos"]), "Empregos Diretos Gerados", NAVY)
 with m2:
-    render_card(fmt_moeda(sim["faturamento"]), "Faturamento Anual Estimado", NAVY)
+    render_card(fmt_moeda(sim["faturamento"]), "Faturamento Setorial Anual", BLUE)
 with m3:
     tot_indireto_ano1 = sim["iss"] + sim["icms"] + sim["itbi"]
-    render_card(fmt_moeda(tot_indireto_ano1), "Tributos Indiretos (Ano 1)", VERDE)
+    render_card(fmt_moeda(tot_indireto_ano1), "Tributos Indiretos (Ano 1)", GREEN)
 
 st.write("")
-st.subheader("📊 Gráfico de Evolução Fiscal por Imposto (Do Ano 0 ao Ano 11)")
+st.subheader("📊 Gráfico Executivo de Evolução Tributária (Ano 0 ao Ano 11)")
 
 anos_eixo = [f"Ano {a}" for a in range(0, 12)]
 iptu_linha = [0] + sim["iptu_pago"][:11]
@@ -249,38 +316,53 @@ fig_proj = go.Figure()
 
 fig_proj.add_trace(go.Scatter(
     x=anos_eixo, y=iptu_linha, mode="lines+markers",
-    name="IPTU Pago (com Isenção)",
-    line=dict(color=GOLD, width=4, shape="spline"), marker=dict(size=8)
+    name="IPTU Arrecadado (Escada)",
+    line=dict(color=GOLD, width=3, shape="spline"),
+    marker=dict(size=7, color=GOLD),
+    fill="tozeroy", fillcolor="rgba(217, 119, 6, 0.08)"
 ))
 
 if dados_loc["trilha"] == "Habitação":
     itbi_linha = [0, sim["itbi"]] + [0] * 10
     fig_proj.add_trace(go.Scatter(
         x=anos_eixo, y=itbi_linha, mode="lines+markers",
-        name="ITBI (Comercialização)",
-        line=dict(color=VERDE, width=4, shape="spline"), marker=dict(size=8)
+        name="ITBI (Operação Inicial)",
+        line=dict(color=GREEN, width=3, shape="spline"),
+        marker=dict(size=7, color=GREEN),
+        fill="tozeroy", fillcolor="rgba(5, 150, 105, 0.08)"
     ))
 else:
     iss_linha = [0] + [sim["iss"]] * 11
     icms_linha = [0] + [sim["icms"]] * 11
+    
     fig_proj.add_trace(go.Scatter(
         x=anos_eixo, y=iss_linha, mode="lines+markers",
-        name="ISS (Imposto Sobre Serviços)",
-        line=dict(color=AZUL_ROYAL, width=4, shape="spline"), marker=dict(size=8)
+        name="ISS (Serviços)",
+        line=dict(color=BLUE, width=3, shape="spline"),
+        marker=dict(size=7, color=BLUE),
+        fill="tozeroy", fillcolor="rgba(37, 99, 235, 0.08)"
     ))
     fig_proj.add_trace(go.Scatter(
         x=anos_eixo, y=icms_linha, mode="lines+markers",
         name="ICMS / VAF",
-        line=dict(color=VERDE, width=4, shape="spline"), marker=dict(size=8)
+        line=dict(color=GREEN, width=3, shape="spline"),
+        marker=dict(size=7, color=GREEN),
+        fill="tozeroy", fillcolor="rgba(5, 150, 105, 0.08)"
     ))
 
 fig_proj.update_layout(
-    plot_bgcolor="#FFFFFF", paper_bgcolor="#FFFFFF",
-    legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0, font=dict(color=TXT_DARK)),
-    margin=dict(l=5, r=5, t=10, b=10), height=380,
-    xaxis=dict(showgrid=True, gridcolor="#F1F5F9", tickfont=dict(color=TXT_DARK)),
-    yaxis=dict(gridcolor="#E2E8F0", tickprefix="R$ ", tickfont=dict(color=TXT_DARK))
+    plot_bgcolor="#FFFFFF",
+    paper_bgcolor="#FFFFFF",
+    legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0, font=dict(color=NAVY, size=12)),
+    margin=dict(l=10, r=10, t=20, b=10),
+    height=400,
+    xaxis=dict(showgrid=True, gridcolor="#F1F5F9", tickfont=dict(color=NAVY)),
+    yaxis=dict(gridcolor="#E2E8F0", tickprefix="R$ ", tickfont=dict(color=NAVY))
 )
 
 st.plotly_chart(fig_proj, use_container_width=True)
-st.caption("💡 **Análise de Balanço Fiscal:** No **Ano 0** (fase de obras), os impostos iniciam em R$ 0. A partir do **Ano 1** (operação), os tributos indiretos entram em regime contínuo, superando amplamente o IPTU enquanto durar o incentivo de reconversão.")
+st.markdown(f"""
+<div style="background-color: {BG_LIGHT}; border: 1px solid {BORDER_COLOR}; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #334155; margin-top: 10px;">
+    💡 <b>Nota Executiva de Balanço Fiscal:</b> Na fase de implantação (Ano 0), a arrecadação é nula. A partir do início das atividades no Ano 1, os tributos indiretos (ISS/ICMS) entram em patamar contínuo e elevado, compensando integralmente a isenção gradual do IPTU concedida pelo programa de reconversão.
+</div>
+""", unsafe_allow_html=True)
