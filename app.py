@@ -13,43 +13,35 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Paleta de Cores Institucionais Executivas
-NAVY = "#0F172A"
-BLUE = "#2563EB"
-GOLD = "#D97706"
-GREEN = "#059669"
-RED = "#DC2626"
-BG_LIGHT = "#F8FAFC"
-BORDER_COLOR = "#CBD5E1"
-
-st.markdown(f"""
+# Estilização CSS pura (sem f-string para garantir imunidade a erros de chaves)
+st.markdown("""
 <style>
-    .stApp {{ background-color: #FFFFFF !important; color: {NAVY} !important; }}
-    div[data-testid="stSidebar"] {{ background-color: #F1F5F9 !important; border-right: 1.5px solid {BORDER_COLOR}; }}
+    .stApp { background-color: #FFFFFF !important; color: #0F172A !important; }
+    div[data-testid="stSidebar"] { background-color: #F1F5F9 !important; border-right: 1.5px solid #CBD5E1; }
     
-    .gov-badge {{
+    .gov-badge {
         background: linear-gradient(135deg, #0A192F 0%, #1E3A8A 100%);
-        border: 1.5px solid {GOLD};
+        border: 1.5px solid #D97706;
         border-radius: 12px;
         padding: 20px 24px;
         text-align: left;
         margin-bottom: 24px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }}
-    .gov-header-top {{ color: #FBBF24; font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }}
-    .main-title {{ color: #FFFFFF; font-size: 26px; font-weight: 800; margin: 0; letter-spacing: 0.5px; }}
-    .sub-title {{ color: #E2E8F0; font-size: 13.5px; margin-top: 4px; }}
+    }
+    .gov-header-top { color: #FBBF24; font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+    .main-title { color: #FFFFFF; font-size: 26px; font-weight: 800; margin: 0; letter-spacing: 0.5px; }
+    .sub-title { color: #E2E8F0; font-size: 13.5px; margin-top: 4px; }
     
-    .metric-card {{
-        background: {BG_LIGHT};
-        border: 1.5px solid {BORDER_COLOR};
+    .metric-card {
+        background: #F8FAFC;
+        border: 1.5px solid #CBD5E1;
         border-radius: 10px;
         padding: 16px;
         text-align: center;
         margin-bottom: 10px;
     }
-    .metric-val {{ font-size: 22px; font-weight: 800; }}
-    .metric-lbl {{ color: #475569; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-top: 4px; }}
+    .metric-val { font-size: 22px; font-weight: 800; }
+    .metric-lbl { color: #475569; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-top: 4px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -61,7 +53,7 @@ def fmt_num(val):
     if val is None: return "0"
     return f"{round(val):,.0f}".replace(",", ".")
 
-def render_card(valor, legenda, cor=NAVY):
+def render_card(valor, legenda, cor="#0F172A"):
     html = f'<div class="metric-card"><div class="metric-val" style="color:{cor};">{valor}</div><div class="metric-lbl">{legenda}</div></div>'
     st.markdown(html, unsafe_allow_html=True)
 
@@ -269,21 +261,21 @@ col_f1, col_f2 = st.columns([1.5, 1])
 
 with col_f1:
     st.markdown(f"""
-    <div style="background-color: {BG_LIGHT}; border: 1.5px solid {BORDER_COLOR}; border-radius: 10px; padding: 18px;">
+    <div style="background-color: #F8FAFC; border: 1.5px solid #CBD5E1; border-radius: 10px; padding: 18px;">
         <p style="margin: 0; font-size: 12px; color: #475569; font-weight: bold;">INSCRIÇÃO IMOBILIÁRIA (SQL): {dados_loc['id']}</p>
-        <p style="margin: 4px 0 10px 0; font-size: 18px; font-weight: 800; color: {NAVY};">{dados_loc['endereco']}</p>
+        <p style="margin: 4px 0 10px 0; font-size: 18px; font-weight: 800; color: #0F172A;">{dados_loc['endereco']}</p>
         <p style="margin: 0; font-size: 13.5px; color: #334155; line-height: 1.5;"><b>Diagnóstico Urbano:</b> {dados_loc['detalhes']}</p>
-        <p style="margin: 10px 0 0 0; font-size: 13.5px; color: {NAVY};"><b>Vocação Setorial (Trilha):</b> <b>{dados_loc['trilha']}</b></p>
-        <hr style="margin: 12px 0; border-color: {BORDER_COLOR};">
+        <p style="margin: 10px 0 0 0; font-size: 13.5px; color: #0F172A;"><b>Vocação Setorial (Trilha):</b> <b>{dados_loc['trilha']}</b></p>
+        <hr style="margin: 12px 0; border-color: #CBD5E1;">
         <span style="background-color: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold;">⚠️ {dados_loc['status']}</span>
     </div>
     """, unsafe_allow_html=True)
 
 with col_f2:
     st.markdown(f"""
-    <div style="background-color: #F1F5F9; border: 1.5px solid {BORDER_COLOR}; border-radius: 10px; padding: 18px; text-align: center;">
+    <div style="background-color: #F1F5F9; border: 1.5px solid #CBD5E1; border-radius: 10px; padding: 18px; text-align: center;">
         <div style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Valor de Mercado / Venal Estimado</div>
-        <div style="font-size: 28px; font-weight: 800; color: {GOLD}; margin-top: 6px;">{fmt_moeda(dados_loc['valor_aproximado'])}</div>
+        <div style="font-size: 28px; font-weight: 800; color: #D97706; margin-top: 6px;">{fmt_moeda(dados_loc['valor_aproximado'])}</div>
         <div style="font-size: 13px; color: #334155; margin-top: 6px;">Área Útil / Terreno: <b>{fmt_num(dados_loc['area_m2'])} m²</b></div>
     </div>
     """, unsafe_allow_html=True)
@@ -299,12 +291,12 @@ st.caption("Simulação de impacto socioeconômico e arrecadação contínua com
 
 m1, m2, m3 = st.columns(3)
 with m1:
-    render_card(fmt_num(sim["empregos"]), "Empregos Diretos Gerados", NAVY)
+    render_card(fmt_num(sim["empregos"]), "Empregos Diretos Gerados", "#0F172A")
 with m2:
-    render_card(fmt_moeda(sim["faturamento"]), "Faturamento Setorial Anual", BLUE)
+    render_card(fmt_moeda(sim["faturamento"]), "Faturamento Setorial Anual", "#2563EB")
 with m3:
     tot_indireto_ano1 = sim["iss"] + sim["icms"] + sim["itbi"]
-    render_card(fmt_moeda(tot_indireto_ano1), "Tributos Indiretos (Ano 1)", GREEN)
+    render_card(fmt_moeda(tot_indireto_ano1), "Tributos Indiretos (Ano 1)", "#059669")
 
 st.write("")
 st.subheader("📊 Gráfico Executivo de Evolução Tributária (Ano 0 ao Ano 11)")
@@ -317,8 +309,8 @@ fig_proj = go.Figure()
 fig_proj.add_trace(go.Scatter(
     x=anos_eixo, y=iptu_linha, mode="lines+markers",
     name="IPTU Arrecadado (Escada)",
-    line=dict(color=GOLD, width=3, shape="spline"),
-    marker=dict(size=7, color=GOLD),
+    line=dict(color="#D97706", width=3, shape="spline"),
+    marker=dict(size=7, color="#D97706"),
     fill="tozeroy", fillcolor="rgba(217, 119, 6, 0.08)"
 ))
 
@@ -327,8 +319,8 @@ if dados_loc["trilha"] == "Habitação":
     fig_proj.add_trace(go.Scatter(
         x=anos_eixo, y=itbi_linha, mode="lines+markers",
         name="ITBI (Operação Inicial)",
-        line=dict(color=GREEN, width=3, shape="spline"),
-        marker=dict(size=7, color=GREEN),
+        line=dict(color="#059669", width=3, shape="spline"),
+        marker=dict(size=7, color="#059669"),
         fill="tozeroy", fillcolor="rgba(5, 150, 105, 0.08)"
     ))
 else:
@@ -338,31 +330,31 @@ else:
     fig_proj.add_trace(go.Scatter(
         x=anos_eixo, y=iss_linha, mode="lines+markers",
         name="ISS (Serviços)",
-        line=dict(color=BLUE, width=3, shape="spline"),
-        marker=dict(size=7, color=BLUE),
+        line=dict(color="#2563EB", width=3, shape="spline"),
+        marker=dict(size=7, color="#2563EB"),
         fill="tozeroy", fillcolor="rgba(37, 99, 235, 0.08)"
     ))
     fig_proj.add_trace(go.Scatter(
         x=anos_eixo, y=icms_linha, mode="lines+markers",
         name="ICMS / VAF",
-        line=dict(color=GREEN, width=3, shape="spline"),
-        marker=dict(size=7, color=GREEN),
+        line=dict(color="#059669", width=3, shape="spline"),
+        marker=dict(size=7, color="#059669"),
         fill="tozeroy", fillcolor="rgba(5, 150, 105, 0.08)"
     ))
 
 fig_proj.update_layout(
     plot_bgcolor="#FFFFFF",
     paper_bgcolor="#FFFFFF",
-    legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0, font=dict(color=NAVY, size=12)),
+    legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0, font=dict(color="#0F172A", size=12)),
     margin=dict(l=10, r=10, t=20, b=10),
     height=400,
-    xaxis=dict(showgrid=True, gridcolor="#F1F5F9", tickfont=dict(color=NAVY)),
-    yaxis=dict(gridcolor="#E2E8F0", tickprefix="R$ ", tickfont=dict(color=NAVY))
+    xaxis=dict(showgrid=True, gridcolor="#F1F5F9", tickfont=dict(color="#0F172A")),
+    yaxis=dict(gridcolor="#E2E8F0", tickprefix="R$ ", tickfont=dict(color="#0F172A"))
 )
 
 st.plotly_chart(fig_proj, use_container_width=True)
-st.markdown(f"""
-<div style="background-color: {BG_LIGHT}; border: 1px solid {BORDER_COLOR}; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #334155; margin-top: 10px;">
+st.markdown("""
+<div style="background-color: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #334155; margin-top: 10px;">
     💡 <b>Nota Executiva de Balanço Fiscal:</b> Na fase de implantação (Ano 0), a arrecadação é nula. A partir do início das atividades no Ano 1, os tributos indiretos (ISS/ICMS) entram em patamar contínuo e elevado, compensando integralmente a isenção gradual do IPTU concedida pelo programa de reconversão.
 </div>
 """, unsafe_allow_html=True)
